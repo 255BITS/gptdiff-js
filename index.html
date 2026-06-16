@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>gptdiff-js — browser demo</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { margin-bottom: 0.2rem; }
+    .sub { opacity: 0.7; margin-top: 0; }
+    label { display: block; font-weight: 600; margin: 1rem 0 0.25rem; }
+    textarea, input { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; font-size: 13px; padding: 0.5rem; }
+    textarea { min-height: 140px; }
+    button { margin: 0.5rem 0.5rem 0.5rem 0; padding: 0.5rem 1rem; cursor: pointer; }
+    pre { background: rgba(127,127,127,0.12); padding: 0.75rem; overflow: auto; white-space: pre-wrap; border-radius: 6px; }
+    .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 280px; }
+    .status { font-size: 13px; opacity: 0.8; }
+    .auth { border: 1px solid rgba(127,127,127,0.3); border-radius: 8px; padding: 0.75rem 1rem; }
+  </style>
+</head>
+<body>
+  <h1>gptdiff-js</h1>
+  <p class="sub">Generate &amp; apply git diffs with an LLM — entirely in the browser, via NanoGPT.</p>
+
+  <div class="auth">
+    <strong>Authentication</strong>
+    <p class="status" id="authStatus">Not signed in.</p>
+    <div class="row">
+      <div>
+        <label for="clientId">NanoGPT OAuth client_id (ngpt_…)</label>
+        <input id="clientId" placeholder="ngpt_… (or click “Register a client”)" />
+        <button id="registerBtn">Register a client</button>
+        <button id="signInBtn">Sign in with NanoGPT</button>
+      </div>
+      <div>
+        <label for="apiKey">…or paste an API key directly (sk-nano-…)</label>
+        <input id="apiKey" placeholder="sk-nano-…" type="password" />
+        <button id="useKeyBtn">Use this key</button>
+      </div>
+    </div>
+  </div>
+
+  <label for="model">Model</label>
+  <input id="model" value="xiaomi/mimo-v2.5-pro-ultraspeed" />
+
+  <label for="files">Files (JSON object of path → content)</label>
+  <textarea id="files">{
+  "greet.py": "def greet():\n    print(\"hello\")\n"
+}</textarea>
+
+  <label for="goal">Goal</label>
+  <textarea id="goal" style="min-height:60px">Change the greeting from "hello" to "goodbye".</textarea>
+
+  <button id="genBtn">Generate diff</button>
+  <button id="applyBtn">Generate diff &amp; smartapply</button>
+
+  <label>Diff</label>
+  <pre id="diffOut">—</pre>
+
+  <label>Resulting files</label>
+  <pre id="filesOut">—</pre>
+
+  <script type="module">
+    import { generateDiff, smartapply, setEnv, getEnv, DEFAULT_MODEL } from './src/index.js';
+    import { beginSignIn, completeSignIn, registerClient } from './src/oauth.js';
+
+    const $ = (id) => document.getElementById(id);
+    const authStatus = $('authStatus');
+
+    function markSignedIn(source) {
+      const key = getEnv('GPTDIFF_LLM_API_KEY');
+      authStatus.textContent = key ? `Signed in (${source}). Ready to call NanoGPT.` : 'Not signed in.';
+    }
+
+    // Restore a saved client_id and complete any pending OAuth redirect.
+    $('clientId').value = localStorage.getItem('gptdiff_client_id') || '';
+    try {
+      const token = await completeSignIn();
+      if (token) markSignedIn('OAuth');
+    } catch (e) {
+      authStatus.textContent = `Sign-in error: ${e.message}`;
+    }
+
+    $('registerBtn').onclick = async () => {
+      try {
+        authStatus.textContent = 'Registering client…';
+        const redirectUri = window.location.origin + window.location.pathname;
+        const reg = await registerClient({ clientName: 'gptdiff-js demo', redirectUri });
+        $('clientId').value = reg.client_id;
+        localStorage.setItem('gptdiff_client_id', reg.client_id);
+        authStatus.textContent = `Registered client ${reg.client_id}. Now click “Sign in”.`;
+      } catch (e) {
+        authStatus.textContent = `Registration failed (likely CORS — register server-side or paste a key): ${e.message}`;
+      }
+    };
+
+    $('signInBtn').onclick = async () => {
+      const clientId = $('clientId').value.trim();
+      if (!clientId) { authStatus.textContent = 'Enter or register a client_id first.'; return; }
+      localStorage.setItem('gptdiff_client_id', clientId);
+      await beginSignIn({ clientId }); // redirects away
+    };
+
+    $('useKeyBtn').onclick = () => {
+      const key = $('apiKey').value.trim();
+      if (!key) return;
+      setEnv('GPTDIFF_LLM_API_KEY', key);
+      markSignedIn('manual key');
+    };
+
+    function readFiles() {
+      return JSON.parse($('files').value);
+    }
+
+    $('genBtn').onclick = async () => {
+      $('diffOut').textContent = 'Generating…';
+      try {
+        const env = Object.entries(readFiles())
+          .map(([p, c]) => `File: ${p}\nContent:\n${c}`).join('\n');
+        const diff = await generateDiff(env, $('goal').value, { model: $('model').value.trim() || DEFAULT_MODEL });
+        $('diffOut').textContent = diff || '(empty diff)';
+      } catch (e) {
+        $('diffOut').textContent = `Error: ${e.message}`;
+      }
+    };
+
+    $('applyBtn').onclick = async () => {
+      $('diffOut').textContent = 'Generating…';
+      $('filesOut').textContent = '…';
+      try {
+        const files = readFiles();
+        const env = Object.entries(files)
+          .map(([p, c]) => `File: ${p}\nContent:\n${c}`).join('\n');
+        const model = $('model').value.trim() || DEFAULT_MODEL;
+        const diff = await generateDiff(env, $('goal').value, { model });
+        $('diffOut').textContent = diff || '(empty diff)';
+        const updated = await smartapply(diff, files, { model });
+        $('filesOut').textContent = JSON.stringify(updated, null, 2);
+      } catch (e) {
+        $('diffOut').textContent = `Error: ${e.message}`;
+      }
+    };
+
+    markSignedIn('existing');
+  </script>
+</body>
+</html>
