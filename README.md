@@ -4,6 +4,13 @@ A browser-first JavaScript port of [gptdiff](https://github.com/255BITS/gptdiff)
 
 Everything runs in the browser (and in Node 18+): no filesystem, no build step, zero runtime dependencies. The diff engine is a faithful port of the Python implementation; it operates on an in-memory `{ path: content }` file map instead of a directory on disk.
 
+See it in action: **[live browser demos →](https://255bits.github.io/gptdiff-js-examples/)** (source in [gptdiff-js-examples](https://github.com/255BITS/gptdiff-js-examples)).
+
+> **The gptdiff family** —
+> [**gptdiff**](https://github.com/255BITS/gptdiff) (CLI + Python API) ·
+> **gptdiff-js** (you are here) ·
+> [**gptdiff-js-examples**](https://github.com/255BITS/gptdiff-js-examples) (live browser demos)
+
 ```js
 import { generateDiff, smartapply, buildEnvironment } from 'gptdiff-js';
 
