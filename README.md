@@ -1,5 +1,9 @@
 # gptdiff-js
 
+<p align="center">
+  <img src="infographic.svg" alt="gptdiff-js: Smart Diffs, Applied Intelligently — generateDiff creates a unified diff from your files and goal, smartapply resolves conflicts per-file with LLM, and you iterate until done" width="100%">
+</p>
+
 A browser-first JavaScript port of [gptdiff](https://github.com/255BITS/gptdiff), scoped to the two core APIs — **`generateDiff`** and **`smartapply`** — wired to [NanoGPT](https://nano-gpt.com) for LLM completions (including "Sign in with NanoGPT" OAuth PKCE).
 
 Everything runs in the browser (and in Node 18+): no filesystem, no build step, zero runtime dependencies. The diff engine is a faithful port of the Python implementation; it operates on an in-memory `{ path: content }` file map instead of a directory on disk.
