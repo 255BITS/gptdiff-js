@@ -100,24 +100,34 @@
   <!-- Feature 1: Smart Conflict Resolution -->
   <rect x="55" y="395" width="270" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
   <!-- Brain icon -->
-  <text x="90" y="438" font-size="28">🧠</text>
+  <circle cx="90" cy="428" r="14" fill="none" stroke="#bc8cff" stroke-width="1.5"/>
+  <path d="M82,428 Q82,418 90,418 Q98,418 98,428 Q98,438 90,438 Q82,438 82,428" fill="none" stroke="#bc8cff" stroke-width="1.2"/>
+  <path d="M86,420 Q90,424 94,420" fill="none" stroke="#bc8cff" stroke-width="1"/>
+  <path d="M84,428 L96,428" stroke="#bc8cff" stroke-width="1" opacity="0.6"/>
+  <path d="M90,418 L90,438" stroke="#bc8cff" stroke-width="1" opacity="0.4"/>
   <text x="125" y="428" fill="#e6edf3" font-size="14" font-weight="600">Smart Conflict</text>
   <text x="125" y="448" fill="#e6edf3" font-size="14" font-weight="600">Resolution</text>
   <text x="125" y="468" fill="#8b949e" font-size="11">Per-file LLM resolves merge</text>
   <text x="125" y="481" fill="#8b949e" font-size="11">conflicts automatically</text>
 
-  <!-- Feature 2: Browser & Node.js -->
+  <!-- Feature 2: Browser and Node.js -->
   <rect x="345" y="395" width="270" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="380" y="438" font-size="28">🌐</text>
-  <text x="415" y="428" fill="#e6edf3" font-size="14" font-weight="600">Browser &</text>
+  <!-- Globe icon -->
+  <circle cx="380" cy="428" r="14" fill="none" stroke="#58a6ff" stroke-width="1.5"/>
+  <ellipse cx="380" cy="428" rx="8" ry="14" fill="none" stroke="#58a6ff" stroke-width="1"/>
+  <line x1="366" y1="428" x2="394" y2="428" stroke="#58a6ff" stroke-width="1"/>
+  <line x1="369" y1="420" x2="391" y2="420" stroke="#58a6ff" stroke-width="0.8" opacity="0.6"/>
+  <line x1="369" y1="436" x2="391" y2="436" stroke="#58a6ff" stroke-width="0.8" opacity="0.6"/>
+  <text x="415" y="428" fill="#e6edf3" font-size="14" font-weight="600">Browser &amp;</text>
   <text x="415" y="448" fill="#e6edf3" font-size="14" font-weight="600">Node.js</text>
   <text x="415" y="468" fill="#8b949e" font-size="11">Same API everywhere, runs</text>
   <text x="415" y="481" fill="#8b949e" font-size="11">in the browser or server</text>
 
   <!-- Feature 3: Full CRUD -->
   <rect x="635" y="395" width="270" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="670" y="438" font-size="28">⚡</text>
-  <text x="705" y="428" fill="#e6edf3" font-size="14" font-weight="600">Create, Modify &</text>
+  <!-- Lightning icon -->
+  <path d="M674,414 L666,430 L674,430 L668,442 L680,426 L672,426 L678,414z" fill="#e3b341" stroke="#e3b341" stroke-width="0.5" stroke-linejoin="round"/>
+  <text x="705" y="428" fill="#e6edf3" font-size="14" font-weight="600">Create, Modify &amp;</text>
   <text x="705" y="448" fill="#e6edf3" font-size="14" font-weight="600">Delete Files</text>
   <text x="705" y="468" fill="#8b949e" font-size="11">Full file lifecycle through</text>
   <text x="705" y="481" fill="#8b949e" font-size="11">intelligent diff application</text>
